@@ -133,15 +133,9 @@
         </div>
 
         <h2>Full Interactive App</h2>
-        <p>The complete password analyzer with advanced analysis and visualizations:</p>
-        <div id="app-placeholder" style="border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 10px; background: #f9f9f9;">
-            <h3>🚀 Deploy Your App First</h3>
-            <p>To see the full interactive password analyzer here, you need to deploy it to Streamlit Cloud.</p>
-            <a href="https://share.streamlit.io" target="_blank" class="btn">Deploy on Streamlit Cloud</a>
-            <p style="margin-top: 20px; font-size: 14px; color: #666;">
-                After deployment, update this page with your app's URL to embed it here.
-            </p>
-        </div>
+        <p>The complete password analyzer with advanced analysis and visualizations runs here:</p>
+        <iframe src="https://password-analyzer.streamlit.app/?embedded=true" width="100%" height="600" frameborder="0" allowfullscreen></iframe>
+        <p><a href="https://password-analyzer.streamlit.app/" target="_blank" class="btn">Open Full App in New Tab</a></p>
 
         <h2>Local Installation</h2>
         <ol>
@@ -150,7 +144,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Common password lists (sample - in real app, load from files)
-        const rockyouSample = ["password", "123456", "123456789", "qwerty", "abc123", "password123"];
+        const rockyouSample = ["password", "123456", "123456789", "qwerty", "abc123"];
         const top10kSample = ["password", "123456", "123456789", "guest", "qwerty", "password123", "admin", "letmein"];
 
         // Common names (sample)
