@@ -142,6 +142,7 @@
             <li>Open your browser to <code>http://localhost:5000</code></li>
         </ol>
         <p><strong>Note:</strong> The local version provides more accurate analysis using the full Python analysis modules, including comprehensive breach checking and advanced pattern detection that isn't possible in the browser.</p>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Common password lists (sample - in real app, load from files)
@@ -336,28 +337,33 @@
                 ).join('');
 
             // Chart
-            const ctx = document.getElementById('strengthChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(results).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
-                    datasets: [{
-                        label: 'Strength Score',
-                        data: Object.values(results).map(v => v * 100),
-                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100
+            const chartCanvas = document.getElementById('strengthChart');
+            if (chartCanvas && typeof Chart !== "undefined") {
+                const ctx = chartCanvas.getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(results).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+                        datasets: [{
+                            label: 'Strength Score',
+                            data: Object.values(results).map(v => v * 100),
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
                         }
                     }
-                }
-            });
+                });
+            } else {
+                console.warn("Chart.js not available; skipping chart rendering.");
+            }
 
             // Suggestions
             const suggestions = [];
