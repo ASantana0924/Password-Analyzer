@@ -151,6 +151,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        let strengthChart = null; // Global chart variable
+
         async function analyzePassword() {
             const password = document.getElementById('password').value;
             const resultDiv = document.getElementById('result');
@@ -215,7 +217,13 @@
 
                 // Chart
                 const ctx = document.getElementById('strengthChart').getContext('2d');
-                new Chart(ctx, {
+                
+                // Destroy existing chart if it exists
+                if (strengthChart) {
+                    strengthChart.destroy();
+                }
+                
+                strengthChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: Object.keys(data.components).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
