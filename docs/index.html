@@ -5,143 +5,282 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Password Analyzer</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        :root {
+            --bg: #0b0d14;
+            --panel: #111625;
+            --muted: #7d88a1;
+            --primary: #5ee6d0;
+            --primary-2: #7f7bff;
+            --text: #e8ecf6;
+            --card-border: rgba(255,255,255,0.06);
+            --glow: 0 20px 60px rgba(94, 230, 208, 0.12);
+        }
+
+        * { box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            margin: 0;
+            font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 20% 20%, rgba(126,123,255,0.15), transparent 30%), radial-gradient(circle at 80% 0%, rgba(94,230,208,0.12), transparent 25%), var(--bg);
+            color: var(--text);
+            padding: 32px 18px 60px;
+        }
+        a { color: var(--primary); text-decoration: none; }
+
+        .shell {
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
         }
-        .header {
-            text-align: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .feature-grid {
+
+        .hero {
+            background: linear-gradient(140deg, rgba(94,230,208,0.08), rgba(127,123,255,0.12));
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 32px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+            align-items: center;
+            box-shadow: var(--glow);
         }
-        .feature {
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: 32px;
+            letter-spacing: -0.5px;
+        }
+        .hero p { margin: 0 0 18px; color: var(--muted); }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.06);
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 1px solid var(--primary);
+            color: var(--text);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+            box-shadow: var(--glow);
+            font-weight: 600;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .cta:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(94,230,208,0.22); }
+        .hero-panel {
+            background: var(--panel);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
             padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            text-align: center;
         }
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 10px;
-            transition: background 0.3s;
+
+        .section {
+            margin-top: 32px;
+            background: var(--panel);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 22px;
         }
-        .btn:hover {
-            background: #5a6fd8;
+        .section h2 {
+            margin: 0 0 10px;
+            font-size: 22px;
+            letter-spacing: -0.2px;
         }
-        .demo-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
+        .section p { color: var(--muted); margin: 0 0 12px; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-top: 12px;
+        }
+        .card {
+            padding: 16px;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            background: linear-gradient(160deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04));
+        }
+        .card h3 { margin: 0 0 6px; font-size: 16px; }
+        .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+        .test-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
         .password-input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
+            padding: 14px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: #0e1320;
+            color: var(--text);
             font-size: 16px;
-            margin: 10px 0;
         }
         .analyze-btn {
-            background: #28a745;
+            background: linear-gradient(135deg, var(--primary), var(--primary-2));
             border: none;
-            padding: 12px 30px;
-            color: white;
-            border-radius: 5px;
+            padding: 12px 18px;
+            color: #0b0d14;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 16px;
-        }
-        .analyze-btn:hover {
-            background: #218838;
+            font-weight: 700;
+            box-shadow: var(--glow);
         }
         .result {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 5px;
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            background: rgba(255,255,255,0.02);
             display: none;
         }
-        .strong { background: #d4edda; color: #155724; }
-        .moderate { background: #fff3cd; color: #856404; }
-        .weak { background: #f8d7da; color: #721c24; }
+        .pill-score {
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            margin-right: 8px;
+            margin-top: 6px;
+        }
+        .strong { border-left: 3px solid #37e39f; }
+        .moderate { border-left: 3px solid #f5c451; }
+        .weak { border-left: 3px solid #f36f6f; }
+
+        .list {
+            padding: 0;
+            margin: 10px 0 0;
+            list-style: none;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .list li:last-child { border-bottom: none; }
+
+        .mini {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .tag {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            color: var(--text);
+            font-size: 13px;
+            margin: 4px 4px 0 0;
+        }
+
+        @media (max-width: 900px) {
+            .hero { grid-template-columns: 1fr; }
+            .test-area { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🔐 Password Analyzer</h1>
-        <p>A comprehensive password strength analysis tool</p>
-    </div>
-
-    <div class="container">
-        <h2>Features</h2>
-        <div class="feature-grid">
-            <div class="feature">
-                <h3>Multi-Criteria Analysis</h3>
-                <p>Checks length, entropy, patterns, frequency, and personal names</p>
+    <div class="shell">
+        <div class="hero">
+            <div>
+                <div class="pill">🔐 Password Intelligence · Client-side demo</div>
+                <h1>Stronger passwords, faster decisions.</h1>
+                <p>Real-time scoring across length, entropy, patterns, breach lists, and personal names. Instant feedback plus clear guidance on how to strengthen credentials.</p>
+                <a class="cta" href="#live-test">Run the test</a>
             </div>
-            <div class="feature">
-                <h3>Visual Feedback</h3>
-                <p>Interactive charts and color-coded strength indicators</p>
-            </div>
-            <div class="feature">
-                <h3>Smart Suggestions</h3>
-                <p>Get personalized tips to improve your password security</p>
-            </div>
-            <div class="feature">
-                <h3>Open Source</h3>
-                <p>Free to use, modify, and contribute to the project</p>
-            </div>
-        </div>
-
-        <h2>Password Strength Analyzer</h2>
-        <div class="demo-section">
-            <p><strong>Client-Side Analysis:</strong> This demo runs entirely in your browser using JavaScript. For the full Python-powered analysis with advanced backend processing, see the local installation below.</p>
-            <p>Enter a password to get a comprehensive analysis:</p>
-            <input type="password" id="password" class="password-input" placeholder="Enter password...">
-            <button onclick="analyzePassword()" class="analyze-btn">Analyze Password</button>
-
-            <div id="result" class="result" style="display: none;">
-                <h3>Analysis Result:</h3>
-                <p id="overall-score"></p>
-                <div id="components"></div>
-                <div id="chart-container" style="margin: 20px 0;">
-                    <canvas id="strengthChart" width="400" height="200"></canvas>
+            <div class="hero-panel">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                    <span style="color:var(--muted);font-size:13px;">What we check</span>
+                    <span class="pill" style="margin:0;">Client-side</span>
                 </div>
-                <div id="suggestions"></div>
+                <div class="grid">
+                    <div class="card"><h3>Entropy</h3><p>Shannon entropy scaled by length.</p></div>
+                    <div class="card"><h3>Patterns</h3><p>Sequential, keyboard, repeats, dates.</p></div>
+                    <div class="card"><h3>Breach freq</h3><p>Top lists (sampled for demo).</p></div>
+                    <div class="card"><h3>Names</h3><p>Personal names + leetspeak catch.</p></div>
+                </div>
             </div>
         </div>
 
-        <h2>Local Installation (Full Python Backend)</h2>
-        <p>For the complete experience with Python-powered analysis, breach detection, and advanced pattern recognition, run the application locally:</p>
-        <ol>
-            <li>Clone the repository: <code>git clone https://github.com/ASantana0924/Password-Analyzer.git</code></li>
-            <li>Install dependencies: <code>pip install -r requirements.txt</code></li>
-            <li>Run the Flask web application: <code>python flask_app.py</code></li>
-            <li>Open your browser to <code>http://localhost:5000</code></li>
-        </ol>
-        <p><strong>Note:</strong> The local version provides more accurate analysis using the full Python analysis modules, including comprehensive breach checking and advanced pattern detection that isn't possible in the browser.</p>
+        <div id="live-test" class="section">
+            <h2>Live Test</h2>
+            <p>Try the analyzer right here. Nothing leaves your browser in this demo.</p>
+            <div class="test-area">
+                <div class="card" style="border-radius:16px;">
+                    <div class="input-group">
+                        <input type="password" id="password" class="password-input" placeholder="Enter a password to analyze">
+                        <button onclick="analyzePassword()" class="analyze-btn">Analyze</button>
+                    </div>
+                    <div style="margin-top:8px;font-size:13px;color:var(--muted);">Supports basic leetspeak (p@ssw0rd → password) for pattern and name detection.</div>
+                    <div id="result" class="result">
+                        <h3>Analysis</h3>
+                        <p id="overall-score"></p>
+                        <div id="components" style="margin:8px 0;"></div>
+                        <div id="chart-container" style="margin: 14px 0;">
+                            <canvas id="strengthChart" width="400" height="200"></canvas>
+                        </div>
+                        <div id="suggestions"></div>
+                    </div>
+                </div>
+                <div class="card" style="border-radius:16px;">
+                    <h3>What this test covers</h3>
+                    <ul class="list">
+                        <li><strong>Length & entropy</strong>: weighted for unpredictability.</li>
+                        <li><strong>Weak patterns</strong>: sequences, keyboard walks, repeats, dates.</li>
+                        <li><strong>Breach frequency</strong>: sample of common password lists.</li>
+                        <li><strong>Names</strong>: catches common personal names with leetspeak normalization.</li>
+                    </ul>
+                    <div class="mini">
+                        <div class="tag">Instant scoring</div>
+                        <div class="tag">Guided suggestions</div>
+                        <div class="tag">Chart.js visuals</div>
+                        <div class="tag">Client-only</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>How it works</h2>
+            <p>Client-side JS mirrors the Python backend: entropy math, regex-based pattern detection, curated breach samples, and leetspeak-aware name checks. The backend version adds deeper lists and richer heuristics.</p>
+            <div class="grid">
+                <div class="card"><h3>Scoring</h3><p>Weighted aggregation of normalized sub-scores into a single strength metric.</p></div>
+                <div class="card"><h3>Data</h3><p>Common patterns, keyboard walks, date formats, and representative breach lists.</p></div>
+                <div class="card"><h3>Suggestions</h3><p>Targeted guidance triggered by weak components.</p></div>
+                <div class="card"><h3>Privacy</h3><p>All analysis happens locally in your browser for this demo.</p></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Deploy & run the full analyzer</h2>
+            <p>Use the Python backend for comprehensive checks (full blocklists, advanced patterns, API hooks).</p>
+            <ol class="list" style="list-style:decimal inside; padding-left:4px; color:var(--text);">
+                <li>Clone: <code>git clone https://github.com/ASantana0924/Password-Analyzer.git</code></li>
+                <li>Install: <code>pip install -r requirements.txt</code></li>
+                <li>Run Flask: <code>python flask_app.py</code></li>
+                <li>Open: <code>http://localhost:5000</code></li>
+            </ol>
+            <p style="margin-top:8px;color:var(--muted);">Prefer static hosting? Point GitHub Pages to <code>/docs</code> on the <code>gh-pages</code> branch.</p>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
