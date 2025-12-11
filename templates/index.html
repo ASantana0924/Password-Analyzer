@@ -3,31 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Analyzer - Flask</title>
+    <title>🔐 Password Analyzer - Full Python Backend</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .container { background: #f9f9f9; padding: 30px; border-radius: 10px; }
-        input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-        button { background: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        .result { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; }
-        .strong { background: #d4edda; color: #155724; }
-        .moderate { background: #fff3cd; color: #856404; }
-        .weak { background: #f8d7da; color: #721c24; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-top: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+        .input-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        input[type="password"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .strong { background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left: 5px solid #28a745; }
+        .moderate { background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-left: 5px solid #ffc107; }
+        .weak { background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); border-left: 5px solid #dc3545; }
+        .score-display {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .overall-score {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .component {
+            background: rgba(255,255,255,0.8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .component-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .component-score {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 10px;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .suggestions {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .suggestions h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .suggestions ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .suggestions li {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔐 Password Strength Analyzer</h1>
-        <p>Enter a password to analyze:</p>
-        <input type="password" id="password" placeholder="Enter password...">
-        <button onclick="analyzePassword()">Analyze Password</button>
-        
-        <div id="result" class="result">
-            <h3>Analysis Result:</h3>
-            <p id="overall"></p>
-            <div id="components"></div>
+        <div class="header">
+            <h1>🔐 Password Analyzer</h1>
+            <p>Advanced password strength analysis powered by Python</p>
+            <div class="badge">Full Backend Analysis</div>
+            <div class="badge">Real-time Charts</div>
+            <div class="badge">Security Insights</div>
         </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Enter a password to analyze..." autocomplete="off">
+                <button onclick="analyzePassword()" id="analyzeBtn">
+                    Analyze Password
+                </button>
+            </div>
+            <div id="loading" style="display: none; margin-top: 15px; text-align: center; color: #667eea; font-weight: bold;">
+                Analyzing password with Python backend...<div class="loading"></div>
+            </div>
+        </div>
+
+        <div id="result" class="result">
+            <div class="score-display">
+                <div class="overall-score" id="overall-score"></div>
+                <div id="strength-badge"></div>
+            </div>
+
+            <div id="breach-warning" class="warning" style="display: none;"></div>
+
+            <div class="components-grid" id="components"></div>
+
+            <div class="chart-container">
+                <canvas id="strengthChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="suggestions" id="suggestions" style="display: none;"></div>
+        </div>
+
+        <div class="footer">
+            <p>🔒 Your password is analyzed locally on this server and never stored or transmitted externally.</p>
+            <p>💡 For instant analysis without a backend, try our <a href="https://asantana0924.github.io/Password-Analyzer/" target="_blank">client-side demo</a>.</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let strengthChart = null;
+
+        async function analyzePassword() {
+            const password = document.getElementById('password').value.trim();
+            const resultDiv = document.getElementById('result');
+            const loadingDiv = document.getElementById('loading');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+
+            if (!password) {
+                alert('Please enter a password to analyze');
+                return;
+            }
+
+            // Show loading state
+            loadingDiv.style.display = 'block';
+            analyzeBtn.disabled = true;
+            analyzeBtn.textContent = 'Analyzing...';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: password })
+                });
+
+                const data = await response.json();
+
+                // Hide loading state
+                loadingDiv.style.display = 'none';
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Password';
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Display results
+                resultDiv.style.display = 'block';
+
+                // Overall score and strength
+                document.getElementById('overall-score').textContent = `${(data.overall_score * 100).toFixed(1)}%`;
+
+                const strengthBadge = document.getElementById('strength-badge');
+                let badgeClass = '';
+                let badgeEmoji = '';
+
+                if (data.strength === 'Strong') {
+                    badgeClass = 'strong';
+                    badgeEmoji = '🟢';
+                } else if (data.strength === 'Moderate') {
+                    badgeClass = 'moderate';
+                    badgeEmoji = '🟡';
+                } else {
+                    badgeClass = 'weak';
+                    badgeEmoji = '🔴';
+                }
+
+                strengthBadge.innerHTML = `<span style="font-size: 1.2em; font-weight: bold;">${badgeEmoji} ${data.strength} Password</span>`;
+
+                // Breach warning
+                const warningDiv = document.getElementById('breach-warning');
+                if (data.breach_warning) {
+                    warningDiv.textContent = data.breach_warning;
+                    warningDiv.style.display = 'block';
+                } else {
+                    warningDiv.style.display = 'none';
+                }
+
+                // Component scores
+                const componentsDiv = document.getElementById('components');
+                componentsDiv.innerHTML = Object.entries(data.components).map(([key, value]) => `
+                    <div class="component">
+                        <div class="component-name">${key.charAt(0).toUpperCase() + key.slice(1)}</div>
+                        <div class="component-score">${(value * 100).toFixed(1)}%</div>
+                    </div>
+                `).join('');
+
+                // Chart
+                const ctx = document.getElementById('strengthChart').getContext('2d');
+
+                // Destroy existing chart
+                if (strengthChart) {
+                    strengthChart.destroy();
+                }
+
+                strengthChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data.components).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+                        datasets: [{
+                            label: 'Strength Score (%)',
+                            data: Object.values(data.components).map(v => v * 100),
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.8)',
+                                'rgba(75, 192, 192, 0.8)',
+                                'rgba(255, 206, 86, 0.8)',
+                                'rgba(255, 99, 132, 0.8)',
+                                'rgba(153, 102, 255, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 2,
+                            borderRadius: 4,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.parsed.y.toFixed(1)}%`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        weight: 'bold'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Suggestions
+                const suggestionsDiv = document.getElementById('suggestions');
+                if (data.suggestions && data.suggestions.length > 0) {
+                    suggestionsDiv.innerHTML = `
+                        <h4>💡 Improvement Suggestions:</h4>
+                        <ul>
+                            ${data.suggestions.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+                    `;
+                    suggestionsDiv.style.display = 'block';
+                } else {
+                    suggestionsDiv.innerHTML = `
+                        <h4>✅ Great job!</h4>
+                        <p>Your password meets strong security criteria.</p>
+                    `;
+                    suggestionsDiv.style.display = 'block';
+                }
+
+                // Scroll to results
+                resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                loadingDiv.style.display = 'none';
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Password';
+                alert('❌ Analysis failed. Please check your connection and try again.');
+            }
+        }
+
+        // Allow Enter key to trigger analysis
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzePassword();
+            }
+        });
+    </script>
+</body>
+</html>
     </div>
 
     <script>

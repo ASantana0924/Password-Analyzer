@@ -1,55 +1,180 @@
-# Password Analyzer
+# 🔐 Password Analyzer
 
-A comprehensive password strength analysis tool with a beautiful web interface.
+A comprehensive password strength analysis tool with multiple deployment options.
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://password-analyzer.streamlit.app/)
+## ✨ Features
 
-## Features
+- **🔍 Multi-Criteria Analysis**: Evaluates length, entropy, patterns, frequency in common lists, and personal names
+- **🌐 Client-Side Demo**: Fast JavaScript-based analysis on GitHub Pages (no backend required)
+- **🐍 Full Python Backend**: Advanced analysis with Flask web server for comprehensive evaluation
+- **📊 Interactive Visualizations**: Real-time charts showing component strength scores
+- **🛡️ Breach Detection**: Checks against common password databases
+- **🎯 Smart Suggestions**: Personalized improvement recommendations
+- **📱 Responsive Design**: Works on desktop and mobile devices
+- **🔧 Modular Architecture**: Easy to extend with new analyzers
 
-- **Multi-criteria Analysis**: Checks length, entropy, patterns, frequency in common lists, and personal names
-- **Visual Web Interface**: Interactive Streamlit app with charts and feedback
-- **Command-line Demo**: Simple script for testing
-- **Modular Design**: Easy to extend with new analyzers
+## 🚀 Quick Start
 
-## Live Demo
+### Option 1: Try the Client-Side Demo (No Installation Required)
+Visit: **[https://asantana0924.github.io/Password-Analyzer/](https://asantana0924.github.io/Password-Analyzer/)**
 
-Try the app live at: [https://password-analyzer.streamlit.app/](https://password-analyzer.streamlit.app/)
+- Instant analysis using JavaScript
+- Good for quick password checks
+- Works offline once loaded
 
-## Installation (Local)
+### Option 2: Full Python Backend (Recommended for Advanced Analysis)
 
-1. Clone the repository
-2. Install dependencies: `pip install -r requirements.txt`
-3. Run the web app: `streamlit run app.py`
+#### Prerequisites
+- Python 3.8+
+- pip package manager
 
-## Usage
+#### Installation
+```bash
+# Clone the repository
+git clone https://github.com/ASantana0924/Password-Analyzer.git
+cd Password-Analyzer
+
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+#### Running the Application
+```bash
+# Start the Flask web server
+python flask_app.py
+
+# Open your browser to: http://localhost:5000
+```
+
+## 📖 Usage
 
 ### Web Interface
-Enter a password to get:
-- Overall strength score (0-1)
-- Component breakdown with bar chart
-- Color-coded feedback (strong/moderate/weak)
-- Specific improvement suggestions
+1. Enter a password in the input field
+2. Click "Analyze Password"
+3. View comprehensive results including:
+   - **Overall strength score** (0-100%)
+   - **Component breakdown** with individual scores
+   - **Interactive bar chart** visualization
+   - **Security warnings** for breached passwords
+   - **Improvement suggestions**
 
-### Command Line
-Run `python test_score.py` for a demo analysis
+### Analysis Components
 
-## Architecture
+| Component | Description | Scale |
+|-----------|-------------|-------|
+| **Length** | Password length evaluation | 0-100% |
+| **Entropy** | Randomness/complexity measure | 0-100% |
+| **Patterns** | Detection of weak sequences/patterns | 0-100% |
+| **Frequency** | Check against common password lists | 0-100% |
+| **Names** | Personal name detection | 0-100% |
 
-- `src/analyzer/`: Core analysis modules
-- `src/utils/`: Helper functions for normalization and APIs
-- `tests/`: Unit tests
-- `data/`: Static data files (patterns, names, blocklists)
+### Command Line Demo
+```bash
+python test_score.py
+```
 
-## Deployment
+## 🏗️ Architecture
 
-This app is deployed on Streamlit Cloud. To deploy your own version:
+```
+Password-Analyzer/
+├── src/analyzer/           # Core analysis modules
+│   ├── length_checker.py   # Password length evaluation
+│   ├── entropy_calculator.py # Entropy/complexity analysis
+│   ├── pattern_detector.py # Pattern recognition
+│   ├── frequency_checker.py # Common password detection
+│   ├── name_detector.py    # Personal name detection
+│   └── score_aggregator.py # Score combination logic
+├── src/utils/              # Helper utilities
+├── data/                   # Static data files
+│   ├── common_patterns.json
+│   ├── common-names.txt
+│   └── blocklists/
+├── docs/                   # GitHub Pages static site
+├── templates/              # Flask HTML templates
+├── tests/                  # Unit tests
+├── flask_app.py           # Flask web application
+├── requirements.txt       # Python dependencies
+└── README.md             # This file
+```
 
-1. Fork this repository
-2. Go to [share.streamlit.io](https://share.streamlit.io)
-3. Connect your GitHub account
-4. Select this repository and the `main` branch
-5. Click Deploy!
+## 🔧 Development
 
-## Contributing
+### Running Tests
+```bash
+python -m pytest tests/
+```
 
-Feel free to open issues or submit pull requests to improve the analyzer!
+### Adding New Analyzers
+1. Create a new module in `src/analyzer/`
+2. Implement an `evaluate(passwords)` function
+3. Update `score_aggregator.py` to include the new component
+4. Add tests in `tests/`
+
+### Code Quality
+- Follow PEP 8 style guidelines
+- Add type hints for function parameters
+- Include comprehensive docstrings
+- Write unit tests for new features
+
+## 🚀 Deployment
+
+### GitHub Pages (Client-Side Only)
+The static demo is automatically deployed to GitHub Pages from the `docs/` folder.
+
+### Flask App Deployment
+For production deployment with the full Python backend:
+
+#### Local Development
+```bash
+python flask_app.py
+```
+
+#### Production Servers
+- **Railway**: Connect GitHub repo for automatic deployment
+- **Heroku**: Use the included `Procfile` (if created)
+- **Docker**: Build from the included `Dockerfile` (if created)
+
+## 🤝 Contributing
+
+We welcome contributions! Please:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes and add tests
+4. Ensure all tests pass: `python -m pytest`
+5. Commit your changes: `git commit -am 'Add feature'`
+6. Push to the branch: `git push origin feature-name`
+7. Submit a pull request
+
+### Areas for Contribution
+- Additional analysis modules
+- Improved pattern detection algorithms
+- Better UI/UX design
+- Performance optimizations
+- Internationalization support
+- Mobile app development
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## ⚠️ Security Notice
+
+- **Never** use real passwords for testing
+- This tool is for educational purposes only
+- Passwords entered are processed locally (client-side demo) or temporarily on the server (Flask version)
+- No passwords are stored or transmitted externally
+
+## 🙏 Acknowledgments
+
+- Built with Flask, Chart.js, and Python's data analysis libraries
+- Pattern data sourced from various security research projects
+- Inspired by password security best practices from OWASP and NIST
+
+---
+
+**Made with ❤️ for better password security awareness**
