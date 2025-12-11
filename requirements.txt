@@ -1,2 +1,9 @@
+<<<<<<< HEAD
 Flask==2.3.3
 Flask-CORS==4.0.0
+rapidfuzz==3.9.3
+=======
+Flask
+Flask-CORS
+rapidfuzz
+>>>>>>> e713dfa (Improve name detection with RapidFuzz)
