@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Analyzer - Flask</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { background: #f9f9f9; padding: 30px; border-radius: 10px; }
+        input[type="password"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 20px; padding: 15px; border-radius: 5px; display: none; }
+        .strong { background: #d4edda; color: #155724; }
+        .moderate { background: #fff3cd; color: #856404; }
+        .weak { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Password Strength Analyzer</h1>
+        <p>Enter a password to analyze:</p>
+        <input type="password" id="password" placeholder="Enter password...">
+        <button onclick="analyzePassword()">Analyze Password</button>
+        
+        <div id="result" class="result">
+            <h3>Analysis Result:</h3>
+            <p id="overall"></p>
+            <div id="components"></div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzePassword() {
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!password) {
+                alert('Please enter a password');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: password })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result ' + data.strength.toLowerCase();
+                
+                document.getElementById('overall').textContent = 
+                    `Overall Strength: ${(data.overall_score * 100).toFixed(1)}% - ${data.strength} Password`;
+                
+                let componentsHtml = '<h4>Component Scores:</h4>';
+                for (const [key, value] of Object.entries(data.components)) {
+                    componentsHtml += `<p>${key.charAt(0).toUpperCase() + key.slice(1)}: ${(value * 100).toFixed(1)}%</p>`;
+                }
+                document.getElementById('components').innerHTML = componentsHtml;
+                
+            } catch (error) {
+                alert('Error analyzing password: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
