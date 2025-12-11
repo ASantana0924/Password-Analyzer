@@ -242,7 +242,7 @@
                 detected.push("date_numeric");
                 score += patternWeights.date_numeric;
             }
-            if (/(?i)\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\d{2,4}\b/.test(password)) {
+            if (/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\d{2,4}\b/i.test(password)) {
                 detected.push("date_alphanumeric");
                 score += patternWeights.date_alphanumeric;
             }
