@@ -115,16 +115,20 @@
             </div>
         </div>
 
-        <h2>Try It Out</h2>
+        <h2>Password Strength Analyzer</h2>
         <div class="demo-section">
-            <p>Enter a password to analyze (basic client-side check):</p>
+            <p>Enter a password to get a comprehensive analysis:</p>
             <input type="password" id="password" class="password-input" placeholder="Enter password...">
             <button onclick="analyzePassword()" class="analyze-btn">Analyze Password</button>
 
-            <div id="result" class="result">
+            <div id="result" class="result" style="display: none;">
                 <h3>Analysis Result:</h3>
-                <p id="strength"></p>
-                <p id="feedback"></p>
+                <p id="overall-score"></p>
+                <div id="components"></div>
+                <div id="chart-container" style="margin: 20px 0;">
+                    <canvas id="strengthChart" width="400" height="200"></canvas>
+                </div>
+                <div id="suggestions"></div>
             </div>
         </div>
 
@@ -137,76 +141,235 @@
         <ol>
             <li>Clone the repository: <code>git clone https://github.com/ASantana0924/Password-Analyzer.git</code></li>
             <li>Install dependencies: <code>pip install -r requirements.txt</code></li>
-            <li>Run the app: <code>streamlit run app.py</code></li>
-        </ol>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        // Common password lists (sample - in real app, load from files)
+        const rockyouSample = ["password", "123456", "123456789", "qwerty", "abc123"];
+        const top10kSample = ["password", "123456", "123456789", "guest", "qwerty", "password123", "admin", "letmein"];
+
+        // Common names (sample)
+        const commonNames = ["alex", "maria", "john", "david", "sofia", "michael", "emma", "oliver"];
+
+        // Pattern weights
+        const patternWeights = {
+            sequential_numbers: 1.0,
+            sequential_letters: 1.0,
+            keyboard_pattern: 0.8,
+            repeated_chars: 0.5,
+            repeated_substring: 0.5,
+            date_numeric: 0.7,
+            date_alphanumeric: 0.7
+        };
+
+        // Sequences and patterns
+        const sequencesNumeric = ["012", "123", "234", "345", "456", "567", "678", "789", "890", "987", "876", "765", "654", "543", "432", "321", "210"];
+        const sequencesAlpha = ["abc", "bcd", "cde", "def", "efg", "fgh", "ghi", "hij", "ijk", "jkl", "klm", "lmn", "mno", "nop", "opq", "pqr", "qrs", "rst", "stu", "tuv", "uvw", "vwx", "wxy", "xyz", "zyx", "yxw", "xwv", "wvu", "vut", "uts", "tsr", "srq", "rqp", "qpo", "pon", "onm", "nml", "mlk", "lkj", "kji", "jih", "ihg", "hgf", "gfe", "fed", "edc", "dcb", "cba"];
+        const keyboardPatterns = ["qwerty", "asdfgh", "zxcvbn", "1q2w3e", "qazwsx", "qwe", "asd", "zxc"];
+
+        function calculateEntropy(password) {
+            if (!password) return 0;
+            const length = password.length;
+            const counts = {};
+            for (let char of password) {
+                counts[char] = (counts[char] || 0) + 1;
+            }
+            let entropy = 0;
+            for (let count of Object.values(counts)) {
+                const p = count / length;
+                entropy -= p * Math.log2(p);
+            }
+            return entropy * length;
+        }
+
+        function normalizeEntropy(entropy) {
+            const minEntropy = 20;
+            const idealEntropy = 60;
+            if (entropy <= minEntropy) return 0;
+            if (entropy >= idealEntropy) return 1;
+            return (entropy - minEntropy) / (idealEntropy - minEntropy);
+        }
+
+        function checkLength(password) {
+            const minLength = 8;
+            const idealLength = 12;
+            const length = password.length;
+            if (length < minLength) return 0;
+            if (length >= idealLength) return 1;
+            return (length - minLength) / (idealLength - minLength);
+        }
+
+        function detectPatterns(password) {
+            let score = 0;
+            const detected = [];
+
+            // Sequential numbers
+            for (let seq of sequencesNumeric) {
+                if (password.includes(seq) || password.includes(seq.split('').reverse().join(''))) {
+                    detected.push("sequential_numbers");
+                    score += patternWeights.sequential_numbers;
+                    break;
+                }
+            }
+
+            // Sequential letters
+            const pwLower = password.toLowerCase();
+            for (let seq of sequencesAlpha) {
+                if (pwLower.includes(seq) || pwLower.includes(seq.split('').reverse().join(''))) {
+                    detected.push("sequential_letters");
+                    score += patternWeights.sequential_letters;
+                    break;
+                }
+            }
+
+            // Keyboard patterns
+            for (let pattern of keyboardPatterns) {
+                if (pwLower.includes(pattern)) {
+                    detected.push("keyboard_pattern");
+                    score += patternWeights.keyboard_pattern;
+                    break;
+                }
+            }
+
+            // Repeated characters
+            if (/(.)\1{2,}/.test(password)) {
+                detected.push("repeated_chars");
+                score += patternWeights.repeated_chars;
+            }
+
+            // Repeated substrings
+            if (/(..+)\1+/.test(password)) {
+                detected.push("repeated_substring");
+                score += patternWeights.repeated_substring;
+            }
+
+            // Dates
+            if (/\b\d{8}\b|\b\d{6}\b|\b\d{4}\b/.test(password)) {
+                detected.push("date_numeric");
+                score += patternWeights.date_numeric;
+            }
+            if (/(?i)\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\d{2,4}\b/.test(password)) {
+                detected.push("date_alphanumeric");
+                score += patternWeights.date_alphanumeric;
+            }
+
+            return { patterns: detected, score: score };
+        }
+
+        function checkFrequency(password) {
+            const pwLower = password.toLowerCase();
+            if (top10kSample.includes(pwLower)) return 1.0;
+            if (rockyouSample.includes(pwLower)) return 0.8;
+            return 0.0;
+        }
+
+        function checkNames(password) {
+            const pwLower = password.toLowerCase();
+            let count = 0;
+            for (let name of commonNames) {
+                if (name.length >= 3 && pwLower.includes(name)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        function aggregateScores(results) {
+            const weights = { length: 1, entropy: 1, patterns: 1, frequency: 1, names: 1 };
+            let weightedScore = 0;
+            let totalWeight = 0;
+
+            for (let [key, score] of Object.entries(results)) {
+                const weight = weights[key] || 1;
+                weightedScore += score * weight;
+                totalWeight += weight;
+            }
+
+            return totalWeight > 0 ? weightedScore / totalWeight : 0;
+        }
+
         function analyzePassword() {
             const password = document.getElementById('password').value;
-            const result = document.getElementById('result');
-            const strength = document.getElementById('strength');
-            const feedback = document.getElementById('feedback');
+            const resultDiv = document.getElementById('result');
+            const overallScoreP = document.getElementById('overall-score');
+            const componentsDiv = document.getElementById('components');
+            const suggestionsDiv = document.getElementById('suggestions');
 
             if (!password) {
                 alert('Please enter a password');
                 return;
             }
 
-            result.style.display = 'block';
+            // Run all analyses
+            const results = {
+                length: checkLength(password),
+                entropy: normalizeEntropy(calculateEntropy(password)),
+                patterns: Math.max(0, 1 - detectPatterns(password).score / 5), // Convert penalty to strength
+                frequency: 1 - checkFrequency(password),
+                names: Math.max(0, 1 - checkNames(password) / 5)
+            };
 
-            // Basic analysis (client-side)
-            let score = 0;
-            let suggestions = [];
+            const finalScore = aggregateScores(results);
 
-            // Length check
-            if (password.length >= 12) score += 25;
-            else if (password.length >= 8) score += 15;
-            else suggestions.push('Make it at least 12 characters long');
+            // Display results
+            resultDiv.style.display = 'block';
 
-            // Character variety
-            if (/[a-z]/.test(password)) score += 10;
-            else suggestions.push('Add lowercase letters');
-
-            if (/[A-Z]/.test(password)) score += 10;
-            else suggestions.push('Add uppercase letters');
-
-            if (/[0-9]/.test(password)) score += 10;
-            else suggestions.push('Add numbers');
-
-            if (/[^a-zA-Z0-9]/.test(password)) score += 10;
-            else suggestions.push('Add special characters');
-
-            // Common patterns
-            if (/(.)\1{2,}/.test(password)) {
-                score -= 10;
-                suggestions.push('Avoid repeated characters');
-            }
-
-            if (/123|abc|qwerty/i.test(password)) {
-                score -= 15;
-                suggestions.push('Avoid common sequences');
-            }
-
-            // Determine strength
-            let strengthText, className;
-            if (score >= 50) {
+            let strengthClass, strengthText;
+            if (finalScore >= 0.8) {
+                strengthClass = 'strong';
                 strengthText = 'Strong Password! 🎉';
-                className = 'strong';
-            } else if (score >= 30) {
+            } else if (finalScore >= 0.6) {
+                strengthClass = 'moderate';
                 strengthText = 'Moderate Password';
-                className = 'moderate';
             } else {
+                strengthClass = 'weak';
                 strengthText = 'Weak Password';
-                className = 'weak';
             }
 
-            result.className = 'result ' + className;
-            strength.textContent = `Strength Score: ${score}/65 - ${strengthText}`;
+            resultDiv.className = 'result ' + strengthClass;
+            overallScoreP.textContent = `Overall Strength: ${(finalScore * 100).toFixed(1)}% - ${strengthText}`;
 
-            if (suggestions.length > 0) {
-                feedback.textContent = 'Suggestions: ' + suggestions.join(', ');
-            } else {
+            // Component scores
+            componentsDiv.innerHTML = '<h4>Component Scores:</h4>' +
+                Object.entries(results).map(([key, value]) =>
+                    `<p>${key.charAt(0).toUpperCase() + key.slice(1)}: ${(value * 100).toFixed(1)}%</p>`
+                ).join('');
+
+            // Chart
+            const ctx = document.getElementById('strengthChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(results).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
+                    datasets: [{
+                        label: 'Strength Score',
+                        data: Object.values(results).map(v => v * 100),
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Suggestions
+            const suggestions = [];
+            if (results.length < 1) suggestions.push("Make it longer (at least 12 characters)");
+            if (results.entropy < 0.5) suggestions.push("Add more variety (uppercase, lowercase, numbers, symbols)");
+            if (results.patterns < 1) suggestions.push("Avoid common patterns like sequences or repeats");
+            if (results.frequency < 1) suggestions.push("Avoid common passwords");
+            if (results.names < 1) suggestions.push("Avoid using personal names");
+
+            suggestionsDiv.innerHTML = '<h4>Suggestions to improve:</h4>' +
+                (suggestions.length > 0 ? suggestions.map(s => `<p>• ${s}</p>`).join('') : '<p>Great job! Your password looks secure.</p>');
+        }
+    </script> else {
                 feedback.textContent = 'Great job! Your password looks secure.';
             }
         }
