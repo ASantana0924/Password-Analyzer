@@ -150,7 +150,28 @@
         const top10kSample = ["password", "123456", "123456789", "guest", "qwerty", "password123", "admin", "letmein"];
 
         // Common names (sample)
-        const commonNames = ["alex", "maria", "john", "david", "sofia", "michael", "emma", "oliver"];
+        const commonNames = ["alex", "maria", "john", "david", "sofia", "michael", "emma", "oliver", "paul", "peter", "robert", "linda", "sarah", "daniel", "laura", "chris"];
+
+        // Simple leetspeak normalization so name checks catch p@ul, s4rah, etc.
+        const LEET_MAP = {
+            "4": "a", "@": "a",
+            "8": "b",
+            "3": "e",
+            "6": "g",
+            "1": "i", "!": "i",
+            "0": "o",
+            "5": "s", "$": "s",
+            "7": "t", "+": "t",
+            "2": "z"
+        };
+
+        function normalizePassword(password) {
+            let pw = password.toLowerCase();
+            Object.entries(LEET_MAP).forEach(([k, v]) => {
+                pw = pw.split(k).join(v);
+            });
+            return pw;
+        }
 
         // Pattern weights
         const patternWeights = {
@@ -265,14 +286,17 @@
         }
 
         function checkNames(password) {
-            const pwLower = password.toLowerCase();
-            let count = 0;
+            const pwNormalized = normalizePassword(password);
+            const matched = new Set();
             for (let name of commonNames) {
-                if (name.length >= 3 && pwLower.includes(name)) {
-                    count++;
+                if (name.length >= 3 && pwNormalized.includes(name)) {
+                    matched.add(name);
                 }
             }
-            return count;
+            // Avoid double-counting substrings (e.g., "alex" and "ale")
+            return Array.from(matched).filter(
+                n => !Array.from(matched).some(other => other !== n && n.length < other.length && other.includes(n))
+            ).length;
         }
 
         function aggregateScores(results) {
